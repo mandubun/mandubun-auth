@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Mandubun Login</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        padding: 24px;
+        max-width: 520px;
+        margin: auto;
+      }
+      code {
+        word-break: break-all;
+      }
+    </style>
+  </head>
+  <body>
+    <h2 id="title">Logging you in…</h2>
+    <p id="status">Please wait.</p>
+
+    <script>
+      // 🔐 Your Chrome extension ID
+      const EXTENSION_ID = "hpnbmbgkgdohhehnjjnbabjlnakcioad";
+
+      function getParams() {
+        const hash = window.location.hash.startsWith("#")
+          ? window.location.hash.slice(1)
+          : "";
+        const params = new URLSearchParams(hash);
+        return {
+          access_token: params.get("access_token"),
+          refresh_token: params.get("refresh_token"),
+          expires_at: params.get("expires_at"),
+        };
+      }
+
+      function sendToken() {
+        const { access_token, refresh_token, expires_at } = getParams();
+
+        if (!access_token) {
+          document.getElementById("title").textContent = "Login failed";
+          document.getElementById("status").textContent =
+            "No token found. Please request a new magic link.";
+          return;
+        }
+
+        chrome.runtime.sendMessage(
+          EXTENSION_ID,
+          {
+            type: "SUPABASE_TOKEN",
+            access_token,
+            refresh_token,
+            expires_at,
+          },
+          () => {
+            const err = chrome.runtime.lastError;
+            if (err) {
+              document.getElementById("title").textContent = "Login failed";
+              document.getElementById("status").innerHTML =
+                "Extension not reachable.<br><br>" +
+                "<code>" + err.message + "</code>";
+              return;
+            }
+
+            document.getElementById("title").textContent = "Logged in ✅";
+            document.getElementById("status").textContent =
+              "You can close this tab and continue using Mandubun.";
+          }
+        );
+      }
+
+      sendToken();
+    </script>
+  </body>
+</html>

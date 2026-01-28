@@ -1,89 +1,72 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<!doctype html>
 <html>
-<head>
-  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <meta http-equiv="Content-Style-Type" content="text/css">
-  <title></title>
-  <meta name="Generator" content="Cocoa HTML Writer">
-  <meta name="CocoaVersion" content="2575.7">
-  <style type="text/css">
-    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000}
-    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Times; -webkit-text-stroke: #000000; min-height: 14.0px}
-    span.s1 {font-kerning: none}
-  </style>
-</head>
-<body>
-<p class="p1"><span class="s1">&lt;!doctype html&gt;</span></p>
-<p class="p1"><span class="s1">&lt;html&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;head&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;meta charset="utf-8" /&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;title&gt;Mandubun Login&lt;/title&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>body {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>font-family: system-ui, sans-serif;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>padding: 24px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>max-width: 520px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>margin: auto;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>input {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>padding: 10px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>margin: 12px 0;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>font-size: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>button {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>width: 100%;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>padding: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>font-size: 16px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>cursor: pointer;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>#status {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>margin-top: 12px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>font-size: 14px;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>opacity: 0.85;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>}</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/head&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;body&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;h2&gt;Log in to Mandubun&lt;/h2&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;p&gt;Enter your email to get a magic link.&lt;/p&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;input id="email" type="email" placeholder="you@email.com" /&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;button id="login"&gt;Send magic link&lt;/button&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;div id="status"&gt;&lt;/div&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;!-- Load Supabase from CDN (simplest for hosted page) --&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"&gt;&lt;/script&gt;</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;script&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const SUPABASE_URL = "https://jwlylgrtaevgjujstvvg.supabase.co";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const SUPABASE_ANON_KEY = "sb_publishable_is4EfIvydGz5COHFX6XKrA_h39lvOZv";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const emailInput = document.getElementById("email");</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>const statusEl = document.getElementById("status");</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>document.getElementById("login").onclick = async () =&gt; {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const email = emailInput.value.trim();</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>if (!email) {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>statusEl.textContent = "Enter an email.";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>return;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>}</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>statusEl.textContent = "Sending magic link…";</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>const { error } = await supabase.auth.signInWithOtp({</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>email,</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>options: {</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">            </span>emailRedirectTo: "https://auth.mandubun.com/callback.html",</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">          </span>},</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>});</span></p>
-<p class="p2"><span class="s1"></span><br></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">        </span>statusEl.textContent = error ? error.message : "Check your email ✉️";</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">      </span>};</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</span></p>
-<p class="p1"><span class="s1"><span class="Apple-converted-space">  </span>&lt;/body&gt;</span></p>
-<p class="p1"><span class="s1">&lt;/html&gt;</span></p>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <title>Mandubun Login</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        padding: 24px;
+        max-width: 520px;
+        margin: auto;
+      }
+      input {
+        width: 100%;
+        padding: 10px;
+        margin: 12px 0;
+        font-size: 16px;
+      }
+      button {
+        width: 100%;
+        padding: 12px;
+        font-size: 16px;
+        cursor: pointer;
+      }
+      #status {
+        margin-top: 12px;
+        font-size: 14px;
+        opacity: 0.85;
+      }
+    </style>
+  </head>
+  <body>
+    <h2>Log in to Mandubun</h2>
+    <p>Enter your email to get a magic link.</p>
+
+    <input id="email" type="email" placeholder="you@email.com" />
+    <button id="login">Send magic link</button>
+    <div id="status"></div>
+
+    <!-- Load Supabase from CDN (simplest for hosted page) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <script>
+      const SUPABASE_URL = "https://jwlylgrtaevgjujstvvg.supabase.co";
+      const SUPABASE_ANON_KEY = "sb_publishable_is4EfIvydGz5COHFX6XKrA_h39lvOZv";
+
+      const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+      const emailInput = document.getElementById("email");
+      const statusEl = document.getElementById("status");
+
+      document.getElementById("login").onclick = async () => {
+        const email = emailInput.value.trim();
+        if (!email) {
+          statusEl.textContent = "Enter an email.";
+          return;
+        }
+
+        statusEl.textContent = "Sending magic link…";
+
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            emailRedirectTo: "https://auth.mandubun.com/callback.html",
+          },
+        });
+
+        statusEl.textContent = error ? error.message : "Check your email ✉️";
+      };
+    </script>
+  </body>
 </html>

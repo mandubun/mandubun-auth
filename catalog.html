@@ -1,85 +1,134 @@
-<!doctype html>
-<html>
-<head>
-  <meta charset="utf-8"/>
-  <title>Mandubun Catalog</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 980px; margin: 20px auto; padding: 0 16px; }
-    .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-    input, select { padding: 10px; font-size: 14px; }
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
-    .card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; }
-    .thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; background:#f2f2f2; }
-    .title { font-weight: 700; margin-top: 10px; }
-    .meta { color: #666; font-size: 13px; margin-top: 4px; }
-    .ep { margin-top: 8px; display: inline-block; }
-  </style>
-</head>
-<body>
-  <h1>Catalog</h1>
+<script>
+  const API = "https://api.mandubun.com";
 
-  <div class="row">
-    <input id="q" placeholder="Search title or episode…" />
-    <input id="genre" placeholder="Genre (optional)" />
-    <input id="day" placeholder="Update day (optional)" />
-    <button id="go">Search</button>
-  </div>
+  const els = {
+    q: document.getElementById("q"),
+    genre: document.getElementById("genre"),
+    day: document.getElementById("day"),
+    go: document.getElementById("go"),
+    status: document.getElementById("status"),
+    grid: document.getElementById("grid"),
+  };
 
-  <div id="status"></div>
-  <div class="grid" id="grid"></div>
+  // Cache episodes so expanding/collapsing is instant
+  const episodeCache = new Map(); // webtoon_id -> episode[]
 
-  <script>
-    const API = "https://api.mandubun.com";
 
-    async function load() {
-      const q = document.getElementById("q").value.trim();
-      const genre = document.getElementById("genre").value.trim();
-      const day = document.getElementById("day").value.trim();
+  function escapeHtml(s) {
+    return String(s || "").replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;"
+    }[c]));
+  }
 
-      const params = new URLSearchParams();
-      if (q) params.set("q", q);
-      if (genre) params.set("genre", genre);
-      if (day) params.set("day", day);
-      params.set("limit", "60");
+  async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`${res.status} ${await res.text().catch(()=>"")}`);
+    return await res.json();
+  }
 
-      document.getElementById("status").textContent = "Loading…";
-      document.getElementById("grid").innerHTML = "";
+  async function loadSeries() {
+    const q = els.q.value.trim();
+    const genre = els.genre.value.trim();
+    const day = els.day.value.trim();
 
-      const authToken = await new Promise(resolve => {
-        chrome.storage?.local?.get?.(["auth_token"], (res) => resolve(res?.auth_token || null));
-        if (!chrome.storage) resolve(null);
-      });
+    const params = new URLSearchParams();
+    if (q) params.set("q", q);
+    if (genre) params.set("genre", genre);
+    if (day) params.set("day", day);
+    params.set("limit", "60");
 
-      const res = await fetch(`${API}/catalog?${params.toString()}`, {
-        headers: authToken ? { "Authorization": `Bearer ${authToken}` } : {}
-      });
+    els.status.textContent = "Loading series…";
+    els.grid.innerHTML = "";
 
-      if (!res.ok) {
-        const t = await res.text().catch(() => "");
-        document.getElementById("status").textContent = "Failed: " + res.status + " " + t;
-        return;
-      }
+    const data = await fetchJSON(`${API}/catalog/series?${params.toString()}`);
+    els.status.textContent = `${data.items.length} series`;
 
-      const data = await res.json();
-      document.getElementById("status").textContent = `${data.items.length} results`;
+    for (const s of data.items) {
+      const card = document.createElement("div");
+      card.className = "card";
 
-      const grid = document.getElementById("grid");
-      for (const item of data.items) {
-        const el = document.createElement("div");
-        el.className = "card";
-        el.innerHTML = `
-          <img class="thumb" src="${item.thumbnail_url || ""}" alt="thumbnail" />
-          <div class="title">${item.series_title || "(untitled)"}</div>
-          <div class="meta">${item.episode_title || ""}</div>
-          <div class="meta">Panels processed: ${item.panel_count || 0} • ${item.update_day || ""}</div>
-          <a class="ep" href="${item.url}" target="_blank">Open chapter →</a>
-        `;
-        grid.appendChild(el);
-      }
+      const wid = s.webtoon_id;
+      const title = escapeHtml(s.series_title || "(untitled)");
+      const thumb = escapeHtml(s.thumbnail_url || "");
+      const meta = `${s.episode_count || 0} processed episodes • ${s.panel_count || 0} panels`;
+
+      card.innerHTML = `
+        <img class="thumb" src="${thumb}" alt="thumbnail" />
+        <div class="title">${title}</div>
+        <div class="meta">${escapeHtml(s.genre || "")} ${escapeHtml(s.update_day || "")}</div>
+        <div class="meta">${meta}</div>
+        <button class="btn" data-action="toggle" data-webtoon-id="${wid}">Show episodes</button>
+        <div class="episodes" data-episodes="${wid}" style="display:none; margin-top:10px;"></div>
+      `;
+
+      // Click handler (event delegation per card)
+      card.querySelector('[data-action="toggle"]').onclick = async (e) => {
+        const btn = e.currentTarget;
+        const webtoonId = btn.getAttribute("data-webtoon-id");
+        const epBox = card.querySelector(`[data-episodes="${webtoonId}"]`);
+
+        const isOpen = epBox.style.display !== "none";
+        if (isOpen) {
+          epBox.style.display = "none";
+          btn.textContent = "Show episodes";
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Loading…";
+
+        try {
+          const episodes = await loadEpisodes(webtoonId);
+          epBox.innerHTML = renderEpisodesList(episodes);
+          epBox.style.display = "block";
+          btn.textContent = "Hide episodes";
+        } catch (err) {
+          epBox.innerHTML = `<div class="meta">Failed to load episodes: ${escapeHtml(err.message)}</div>`;
+          epBox.style.display = "block";
+          btn.textContent = "Show episodes";
+        } finally {
+          btn.disabled = false;
+        }
+      };
+
+      els.grid.appendChild(card);
     }
+  }
 
-    document.getElementById("go").onclick = load;
-    load();
-  </script>
-</body>
-</html>
+  async function loadEpisodes(webtoonId) {
+    if (episodeCache.has(webtoonId)) return episodeCache.get(webtoonId);
+
+    const data = await fetchJSON(`${API}/catalog/episodes?webtoon_id=${encodeURIComponent(webtoonId)}&limit=300`);
+    const episodes = data.items || [];
+    episodeCache.set(webtoonId, episodes);
+    return episodes;
+  }
+
+  function renderEpisodesList(episodes) {
+    if (!episodes.length) return `<div class="meta">No processed episodes yet.</div>`;
+
+    // Sort by numeric episode_id if possible
+    const sorted = [...episodes].sort((a, b) => {
+      const ai = parseInt(a.episode_id, 10);
+      const bi = parseInt(b.episode_id, 10);
+      if (!Number.isNaN(ai) && !Number.isNaN(bi)) return ai - bi;
+      return String(a.episode_id).localeCompare(String(b.episode_id));
+    });
+
+    return `
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        ${sorted.map(ep => `
+          <a href="${escapeHtml(ep.url)}" target="_blank">
+            Episode ${escapeHtml(ep.episode_id)} — ${escapeHtml(ep.episode_title || "")}
+            <span style="opacity:.65;">(panels: ${ep.panel_count || 0})</span>
+          </a>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  els.go.onclick = () => loadSeries();
+
+  // Initial load
+  loadSeries();
+</script>

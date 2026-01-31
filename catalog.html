@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <title>Mandubun Catalog</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 980px; margin: 20px auto; padding: 0 16px; }
+    .row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+    input, select { padding: 10px; font-size: 14px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .card { border: 1px solid #ddd; border-radius: 12px; padding: 12px; }
+    .thumb { width: 100%; aspect-ratio: 16/9; object-fit: cover; border-radius: 10px; background:#f2f2f2; }
+    .title { font-weight: 700; margin-top: 10px; }
+    .meta { color: #666; font-size: 13px; margin-top: 4px; }
+    .ep { margin-top: 8px; display: inline-block; }
+  </style>
+</head>
+<body>
+  <h1>Catalog</h1>
+
+  <div class="row">
+    <input id="q" placeholder="Search title or episode…" />
+    <input id="genre" placeholder="Genre (optional)" />
+    <input id="day" placeholder="Update day (optional)" />
+    <button id="go">Search</button>
+  </div>
+
+  <div id="status"></div>
+  <div class="grid" id="grid"></div>
+
+  <script>
+    const API = "https://api.mandubun.com";
+
+    async function load() {
+      const q = document.getElementById("q").value.trim();
+      const genre = document.getElementById("genre").value.trim();
+      const day = document.getElementById("day").value.trim();
+
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (genre) params.set("genre", genre);
+      if (day) params.set("day", day);
+      params.set("limit", "60");
+
+      document.getElementById("status").textContent = "Loading…";
+      document.getElementById("grid").innerHTML = "";
+
+      const authToken = await new Promise(resolve => {
+        chrome.storage?.local?.get?.(["auth_token"], (res) => resolve(res?.auth_token || null));
+        if (!chrome.storage) resolve(null);
+      });
+
+      const res = await fetch(`${API}/catalog?${params.toString()}`, {
+        headers: authToken ? { "Authorization": `Bearer ${authToken}` } : {}
+      });
+
+      if (!res.ok) {
+        const t = await res.text().catch(() => "");
+        document.getElementById("status").textContent = "Failed: " + res.status + " " + t;
+        return;
+      }
+
+      const data = await res.json();
+      document.getElementById("status").textContent = `${data.items.length} results`;
+
+      const grid = document.getElementById("grid");
+      for (const item of data.items) {
+        const el = document.createElement("div");
+        el.className = "card";
+        el.innerHTML = `
+          <img class="thumb" src="${item.thumbnail_url || ""}" alt="thumbnail" />
+          <div class="title">${item.series_title || "(untitled)"}</div>
+          <div class="meta">${item.episode_title || ""}</div>
+          <div class="meta">Panels processed: ${item.panel_count || 0} • ${item.update_day || ""}</div>
+          <a class="ep" href="${item.url}" target="_blank">Open chapter →</a>
+        `;
+        grid.appendChild(el);
+      }
+    }
+
+    document.getElementById("go").onclick = load;
+    load();
+  </script>
+</body>
+</html>

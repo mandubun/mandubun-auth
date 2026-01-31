@@ -1,4 +1,5 @@
 <script>
+document.addEventListener("DOMContentLoaded", () => {
   const API = "https://api.mandubun.com";
 
   const els = {
@@ -10,9 +11,13 @@
     grid: document.getElementById("grid"),
   };
 
-  // Cache episodes so expanding/collapsing is instant
-  const episodeCache = new Map(); // webtoon_id -> episode[]
+  // ✅ Fail loudly if core containers are missing
+  if (!els.status || !els.grid) {
+    console.error("Catalog page is missing #status or #grid. Check your HTML IDs.");
+    return;
+  }
 
+  const episodeCache = new Map();
 
   function escapeHtml(s) {
     return String(s || "").replace(/[&<>"']/g, (c) => ({
@@ -27,9 +32,9 @@
   }
 
   async function loadSeries() {
-    const q = els.q.value.trim();
-    const genre = els.genre.value.trim();
-    const day = els.day.value.trim();
+    const q = (els.q?.value || "").trim();
+    const genre = (els.genre?.value || "").trim();
+    const day = (els.day?.value || "").trim();
 
     const params = new URLSearchParams();
     if (q) params.set("q", q);
@@ -61,7 +66,6 @@
         <div class="episodes" data-episodes="${wid}" style="display:none; margin-top:10px;"></div>
       `;
 
-      // Click handler (event delegation per card)
       card.querySelector('[data-action="toggle"]').onclick = async (e) => {
         const btn = e.currentTarget;
         const webtoonId = btn.getAttribute("data-webtoon-id");
@@ -107,7 +111,6 @@
   function renderEpisodesList(episodes) {
     if (!episodes.length) return `<div class="meta">No processed episodes yet.</div>`;
 
-    // Sort by numeric episode_id if possible
     const sorted = [...episodes].sort((a, b) => {
       const ai = parseInt(a.episode_id, 10);
       const bi = parseInt(b.episode_id, 10);
@@ -127,13 +130,8 @@
     `;
   }
 
-    // ✅ Bind safely (in case an element ID is missing or script loads early)
-  if (els.go) {
-    els.go.onclick = () => loadSeries();
-  } else {
-    console.warn('Missing element: id="go" (search button). Running loadSeries() anyway.');
-  }
+  if (els.go) els.go.onclick = () => loadSeries();
 
-  // Initial load
   loadSeries();
+});
 </script>

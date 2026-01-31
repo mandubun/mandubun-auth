@@ -100,6 +100,23 @@
           return await res.json();
         }
 
+        // ✅ Try multiple endpoint paths until one works
+        async function fetchJSONWithFallback(paths) {
+          let lastErr = null;
+        
+          for (const p of paths) {
+            try {
+              const result = await fetchJSON(`${API}${p}`);
+              console.log("✅ Catalog endpoint OK:", `${API}${p}`);
+              return result;
+            } catch (e) {
+              lastErr = e;
+            }
+          }
+        
+          throw lastErr || new Error("All endpoints failed");
+        }
+        
         async function loadSeries() {
           const q = (els.q?.value || "").trim();
           const genre = (els.genre?.value || "").trim();
@@ -114,7 +131,18 @@
           els.status.textContent = "Loading series…";
           els.grid.innerHTML = "";
 
-          const data = await fetchJSON(`${API}/catalog/series?${params.toString()}`);
+          let data;
+          try {
+            data = await fetchJSONWithFallback([
+              `/catalog/series?${params.toString()}`,
+              `/panel/catalog/series?${params.toString()}`
+            ]);
+          } catch (e) {
+            console.error("❌ Catalog failed:", e);
+            els.status.textContent = `Catalog failed: ${e?.message || e}`;
+            return;
+          }
+          
           els.status.textContent = `${data.items.length} series`;
 
           for (const s of data.items) {
@@ -171,7 +199,10 @@
         async function loadEpisodes(webtoonId) {
           if (episodeCache.has(webtoonId)) return episodeCache.get(webtoonId);
 
-          const data = await fetchJSON(`${API}/catalog/episodes?webtoon_id=${encodeURIComponent(webtoonId)}&limit=300`);
+          const data = await fetchJSONWithFallback([
+            `/catalog/episodes?webtoon_id=${encodeURIComponent(webtoonId)}&limit=300`,
+            `/panel/catalog/episodes?webtoon_id=${encodeURIComponent(webtoonId)}&limit=300`
+          ]);
           const episodes = data.items || [];
           episodeCache.set(webtoonId, episodes);
           return episodes;

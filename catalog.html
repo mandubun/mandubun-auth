@@ -127,7 +127,12 @@
     `;
   }
 
-  els.go.onclick = () => loadSeries();
+    // ✅ Bind safely (in case an element ID is missing or script loads early)
+  if (els.go) {
+    els.go.onclick = () => loadSeries();
+  } else {
+    console.warn('Missing element: id="go" (search button). Running loadSeries() anyway.');
+  }
 
   // Initial load
   loadSeries();

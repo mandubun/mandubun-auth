@@ -169,18 +169,18 @@
         margin-top: 12px;                                                   
       }                                                                     
                                                                             
-      .hero-screenshot {                                                    
-        max-width: 720px;                                                   
-        margin: 56px auto 0;                                                
-        background: rgba(255, 255, 255, 0.06);                              
-        border: 1px solid var(--color-border);                              
-        border-radius: 12px;                                                
-        height: 400px;                                                      
-        display: flex;                                                      
-        align-items: center;                                                
-        justify-content: center;                                            
-        color: var(--color-text-muted);                                     
-        font-size: 15px;                                                    
+      .hero-screenshot {
+        max-width: 480px;
+        margin: 56px auto 0;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+      }
+
+      .hero-screenshot img {
+        width: 100%;
+        height: auto;
+        display: block;
       }                                                                     
                                                                             
       /* ---- SECTION SHARED ---- */                                        
@@ -453,7 +453,7 @@
         .hero { padding: 120px 20px 56px; }                                 
         .hero h1 { font-size: 32px; }                                       
         .hero-subtitle { font-size: 16px; }                                 
-        .hero-screenshot { height: 240px; margin-top: 40px; }               
+        .hero-screenshot { max-width: 100%; margin-top: 40px; }               
                                                                             
         .section { padding: 64px 20px; }                                    
         .section-title { font-size: 26px; }                                 
@@ -501,8 +501,8 @@
       <span class="hero-cta-sub">Works with any series on Naver             
   Webtoons</span>                                                           
                                                                             
-      <div class="hero-screenshot">                                         
-        Screenshot placeholder &mdash; replace with extension screenshot    
+      <div class="hero-screenshot">
+        <img src="/hero-screenshot.png" alt="Mandubun extension showing Korean webtoon translation with word-by-word breakdown">
       </div>                                                                
     </div>                                                                  
   </section>                                                                

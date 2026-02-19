@@ -60,6 +60,15 @@
         color: var(--color-text-light);
         text-decoration: none;
         letter-spacing: -0.3px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .nav-logo-icon {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
       }
 
       .nav-links {
@@ -462,7 +471,7 @@
 <!-- NAV -->
 <nav>
   <div class="nav-inner">
-    <a href="/" class="nav-logo">Mandubun</a>
+    <a href="/" class="nav-logo"><img src="mascot/happy.webp" alt="Mandubun mascot" class="nav-logo-icon">Mandubun</a>
     <button class="nav-toggle" aria-label="Toggle menu" onclick="document.querySelector('.nav-links').classList.toggle('open')">
       <span></span><span></span><span></span>
     </button>

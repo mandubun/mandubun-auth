@@ -57,9 +57,14 @@
             const err = chrome.runtime.lastError;
             if (err) {
               document.getElementById("title").textContent = "Login failed";
-              document.getElementById("status").innerHTML =
-                "Extension not reachable.<br><br>" +
-                "<code>" + err.message + "</code>";
+              const statusEl = document.getElementById("status");
+              statusEl.textContent = "";
+              statusEl.appendChild(document.createTextNode("Extension not reachable."));
+              statusEl.appendChild(document.createElement("br"));
+              statusEl.appendChild(document.createElement("br"));
+              const codeEl = document.createElement("code");
+              codeEl.textContent = err.message;
+              statusEl.appendChild(codeEl);
               return;
             }
 

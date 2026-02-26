@@ -70,7 +70,14 @@
 
             document.getElementById("title").textContent = "Logged in ✅";
             document.getElementById("status").textContent =
-              "You can close this tab and continue using Mandubun.";
+              "Taking you to Naver Webtoons…";
+
+            setTimeout(() => {
+              window.close();
+              // If window.close() was blocked by browser, show fallback message
+              document.getElementById("status").textContent =
+                "You can close this tab — Mandubun is ready on Naver Webtoons.";
+            }, 1500);
           }
         );
       }

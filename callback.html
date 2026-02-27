@@ -20,8 +20,11 @@
     <p id="status">Please wait.</p>
 
     <script>
-      // 🔐 Your Chrome extension ID
-      const EXTENSION_ID = "hjnmpogajhamijdcdglgppmjkcplinel";
+      // 🔐 Chrome extension IDs — try production first, then dev
+      const EXTENSION_IDS = [
+        "hjnmpogajhamijdcdglgppmjkcplinel",  // production (Chrome Web Store)
+        "hpnbmbgkgdohhehnjjnbabjlnakcioad",  // dev (unpacked)
+      ];
 
       function getParams() {
         const hash = window.location.hash.startsWith("#")
@@ -35,6 +38,34 @@
         };
       }
 
+      function trySendToken(ids, payload, index) {
+        if (index >= ids.length) {
+          document.getElementById("title").textContent = "Login failed";
+          document.getElementById("status").textContent =
+            "Extension not reachable. Make sure Mandubun is installed and enabled.";
+          return;
+        }
+
+        chrome.runtime.sendMessage(ids[index], payload, () => {
+          if (chrome.runtime.lastError) {
+            // This ID didn't work — try the next one
+            trySendToken(ids, payload, index + 1);
+            return;
+          }
+
+          document.getElementById("title").textContent = "Logged in ✅";
+          document.getElementById("status").textContent =
+            "Taking you to Naver Webtoons…";
+
+          setTimeout(() => {
+            window.close();
+            // If window.close() was blocked by browser, show fallback message
+            document.getElementById("status").textContent =
+              "You can close this tab — Mandubun is ready on Naver Webtoons.";
+          }, 1500);
+        });
+      }
+
       function sendToken() {
         const { access_token, refresh_token, expires_at } = getParams();
 
@@ -45,41 +76,12 @@
           return;
         }
 
-        chrome.runtime.sendMessage(
-          EXTENSION_ID,
-          {
-            type: "SUPABASE_TOKEN",
-            access_token,
-            refresh_token,
-            expires_at,
-          },
-          () => {
-            const err = chrome.runtime.lastError;
-            if (err) {
-              document.getElementById("title").textContent = "Login failed";
-              const statusEl = document.getElementById("status");
-              statusEl.textContent = "";
-              statusEl.appendChild(document.createTextNode("Extension not reachable."));
-              statusEl.appendChild(document.createElement("br"));
-              statusEl.appendChild(document.createElement("br"));
-              const codeEl = document.createElement("code");
-              codeEl.textContent = err.message;
-              statusEl.appendChild(codeEl);
-              return;
-            }
-
-            document.getElementById("title").textContent = "Logged in ✅";
-            document.getElementById("status").textContent =
-              "Taking you to Naver Webtoons…";
-
-            setTimeout(() => {
-              window.close();
-              // If window.close() was blocked by browser, show fallback message
-              document.getElementById("status").textContent =
-                "You can close this tab — Mandubun is ready on Naver Webtoons.";
-            }, 1500);
-          }
-        );
+        trySendToken(EXTENSION_IDS, {
+          type: "SUPABASE_TOKEN",
+          access_token,
+          refresh_token,
+          expires_at,
+        }, 0);
       }
 
       sendToken();

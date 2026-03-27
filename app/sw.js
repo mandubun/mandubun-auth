@@ -1,5 +1,5 @@
 // Mandubun PWA Service Worker
-const CACHE_NAME = "mandubun-v3";
+const CACHE_NAME = "mandubun-v4";
 const API_CACHE_NAME = "mandubun-api-v1";
 const BASE_PATH = "/app";
 

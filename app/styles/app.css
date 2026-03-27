@@ -506,11 +506,12 @@ input, textarea, select {
   bottom: calc(var(--bottom-nav-height) + var(--safe-bottom));
   left: 0;
   right: 0;
-  background: rgba(0, 0, 0, 0.95);
+  background: rgba(0, 0, 0, 0.92);
   border-top: 1px solid var(--color-border);
-  padding: var(--space-lg) var(--space-xl);
   z-index: 50;
+  min-height: 80px;
   animation: slide-up 0.2s ease-out;
+  touch-action: manipulation;
 }
 
 @keyframes slide-up {
@@ -518,33 +519,190 @@ input, textarea, select {
   to { transform: translateY(0); }
 }
 
-.subtitle-content {
+.subtitle-layout {
+  display: flex;
+  align-items: stretch;
   max-width: var(--max-content-width);
   margin: 0 auto;
+  min-height: 80px;
 }
 
-.subtitle-korean {
-  font-size: var(--font-md);
-  font-weight: 600;
-  margin-bottom: var(--space-sm);
-  line-height: 1.4;
+.sub-nav {
+  flex: 0 0 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--font-lg);
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  user-select: none;
 }
 
-.subtitle-english {
-  font-size: var(--font-sm);
+.sub-nav:active {
+  opacity: 1;
+}
+
+.sub-center {
+  flex: 1;
+  min-width: 0;
+  padding: var(--space-md) var(--space-sm);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--space-xs);
+}
+
+.sub-detail {
+  display: none;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: var(--space-xs);
+}
+
+.sub-detail.visible {
+  display: flex;
+}
+
+.sub-detail-pill {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 11px;
   color: var(--color-text-secondary);
   line-height: 1.4;
 }
 
-.subtitle-vocab-btn {
-  display: inline-block;
-  margin-top: var(--space-md);
-  font-size: var(--font-xs);
+.sub-detail-pill.romanization {
   color: var(--color-accent);
+}
+
+.sub-detail-pill.grammar {
+  color: #a78bfa;
+}
+
+.sub-direct {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 6px;
+  line-height: 1.4;
+}
+
+.vocab-word {
   cursor: pointer;
-  padding: var(--space-sm) var(--space-md);
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.05);
+  transition: background 0.15s, border-color 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
   min-height: 44px;
-  min-width: 44px;
+  justify-content: center;
+}
+
+.vocab-word:active {
+  background: rgba(60, 60, 60, 0.95);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.vocab-word.vocab-selected {
+  background: rgba(74, 222, 128, 0.15);
+  border-color: rgba(74, 222, 128, 0.4);
+}
+
+.vocab-word-korean {
+  font-size: var(--font-sm);
+  font-weight: 500;
+}
+
+.vocab-word-meaning {
+  font-size: 11px;
+  opacity: 0.65;
+}
+
+.sub-full {
+  text-align: center;
+  font-size: var(--font-sm);
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+  line-height: 1.4;
+  padding: 2px 0;
+}
+
+.sub-audio-btn {
+  flex: 0 0 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  cursor: pointer;
+  opacity: 0.5;
+  transition: opacity 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  color: var(--color-text-secondary);
+}
+
+.sub-audio-btn:active {
+  opacity: 1;
+}
+
+.sub-audio-btn svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Reader bottom padding for subtitle bar clearance */
+#reader-panels.subtitle-mode {
+  padding-bottom: calc(160px + var(--bottom-nav-height) + var(--safe-bottom));
+}
+
+/* Practice CTA */
+.practice-cta {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + var(--safe-bottom) + 90px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  animation: slide-up 0.3s ease-out;
+}
+
+.practice-cta button {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 20px;
+  font-size: var(--font-sm);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.practice-cta .dismiss-btn {
+  background: transparent;
+  color: var(--color-text-muted);
+  box-shadow: none;
+  padding: 4px 8px;
+  min-height: auto;
+  font-size: var(--font-xs);
 }
 
 /* ==================== Vocab Popover ==================== */

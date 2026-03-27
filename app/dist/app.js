@@ -207,7 +207,7 @@
     <div class="page">
       <div id="series-header"><div class="skeleton skeleton-title"></div></div>
       <div id="episode-list"><div class="skeleton skeleton-card"></div><div class="skeleton skeleton-card"></div></div>
-    </div>`;let s=await C(`/catalog/episodes?webtoon_id=${encodeURIComponent(n)}`),i=s?.ok?await s.json():null;if(!i){e.innerHTML='<div class="page empty-state"><p>Failed to load episodes.</p></div>';return}let a=i.episodes||i||[],r=i.series_title||a[0]?.series_title||"Webtoon",c=document.getElementById("series-header");c&&(c.innerHTML=`
+    </div>`;let s=await C(`/catalog/episodes?webtoon_id=${encodeURIComponent(n)}`),i=s?.ok?await s.json():null;if(!i){e.innerHTML='<div class="page empty-state"><p>Failed to load episodes.</p></div>';return}let a=i.items||i.episodes||(Array.isArray(i)?i:[]),r=a[0]?.series_title||i.series_title||"Webtoon",c=document.getElementById("series-header");c&&(c.innerHTML=`
       <a href="#/catalog" class="text-secondary" style="font-size:var(--font-sm)">&larr; Back to catalog</a>
       <h2 style="font-size:var(--font-xl);margin-top:var(--space-md)">${De(r)}</h2>
       <p class="text-secondary mt-sm">${a.length} episode${a.length!==1?"s":""}</p>
